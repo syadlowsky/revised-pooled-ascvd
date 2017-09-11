@@ -1,0 +1,33 @@
+default:
+  seed: 100
+  working_dir: "/dir/like/this"
+  models_file: "data/model.rda"
+  full_models_file: "data/final_model.rda"
+  pooled_cohort_csv: "pooled_data/cohdataforr_censored.csv"
+  jhs_csv: "pooled_data/jhsdata.csv"
+  mesa_csv: "pooled_data/mesadata.csv"
+  nhanes_csv: "pooled_data/nhanesdata.csv"
+  folds: 20
+  train_file: "data/train_strat.csv"
+  test_file: "data/test_strat.csv"
+  outcome_time: 10
+  run_parallel: true
+  cores: 8
+  title_size: 11
+  inset_title_size: 9
+  point_size: 0.8
+  fit_model: true
+  load_cv_results: false
+  elastic_net:
+    logistic:
+      censorship_per_study: true
+      folds: 10
+      s: "lambda.min"
+
+fit:
+  fit_model: true
+  load_cv_results: false
+
+nofit:
+  fit_model: false
+  load_cv_results: true

@@ -1,0 +1,21 @@
+Age (years),Sex,Systolic BP (mmHg),BP treatment? (yes/no),Total cholesterol (mg/dL),HDL cholesterol (mg/dL),Smoking tobacco?,Diabetes?,ASCVD 10-year risk (%) if White per 2013 PCEs,ASCVD 10-year risk (%) if Black per 2013 PCEs,Black/white risk ratio per 2013 PCEs (versus expected ratio between 0.7 and 2.5)
+46,Male,108,No,262,33,Yes,No,10.9%,6.7%,0.61
+68,Male,115,No,196,40,No,No,14.6%,9.7%,0.66
+43,Female,111,No,281,80,Yes,No,1.9%,0.5%,0.26
+76,Female,132,Yes,140,67,No,No,24.4%,13.3%,0.55
+70,Male,138,No,153,37,No,No,20.4%,13.5%,0.66
+41,Male,123,Yes,186,49,No,Yes,2.4%,9.3%,3.88
+41,Female,186,Yes,158,45,Yes,No,6.3%,26.7%,4.24
+41,Male,133,Yes,186,64,No,Yes,1.9%,9.9%,5.21
+53,Female,147,No,179,56,No,Yes,3.5%,8.9%,2.54
+47,Female,163,Yes,141,42,No,No,1.8%,8.9%,4.94
+
+
+
+
+
+
+
+
+
+

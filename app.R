@@ -1,135 +1,53 @@
 # This code implements an automated GUI risk score calculator for patients with type 2 diabetes, using the Shiny package in R.
 # install the shiny app before using
 
+library(DT)
 library(shiny)
 
-ui = navbarPage("RECODe",
+specify.decimal <- function(t, nsmall=3, zero=T) {
+    if (round(t, nsmall) == 0 & !zero) {
+        return(signif(t, 1))
+    }
+    return(format(round(t, nsmall), nsmall=nsmall))
+}
+
+
+ui = navbarPage("ASCVD",
                 
                 tabPanel("Risk Calculator",
                          
                          fluidPage(
                            
-                           titlePanel("Risk Equations for Complications Of Type 2 Diabetes"),
-                           h5("Switch to:", a("version using SI units", href="https://sanjaybasu.shinyapps.io/recodesi/")),
+                           titlePanel("Risk Equations for Atherosclerotic CVD 10-year incidence"),
                            
                            fluidRow(
-                             column(3,
+                             column(width=6,
                                     numericInput("age", label = "Age (years)", value = 60),
                                     selectInput("sex", label = "Sex", choices = list(Male=0, Female=1)),
                                     radioButtons("black", label = "Black?", choices = list(No=0, Yes=1), inline = TRUE),
-                                    radioButtons("hisp", label = "Hispanic?", choices = list(No=0, Yes=1), inline = TRUE)
-                             ),
-                             column(3,
-                                    numericInput("totchol", label = "Total cholesterol (mg/dL)", value = 190),
-                                    numericInput("hdlchol", label = "HDL cholesterol (mg/dL)", value = 50),
-                                    radioButtons("statin", label = "On statin?", choices = list(No=0, Yes=1), inline = TRUE),
-                                    numericInput("hgba1c", label = "Hemoglobin A1c (%)", value = 8),
-                                    radioButtons("oralrx", label = "On oral diabetes medication?", choices = list(No=0, Yes=1), inline = TRUE)
-                             ),
-                             column(3,numericInput("sercreat", label = "Serum creatinine (mg/dL)", value = 1.1),
-                                    numericInput("uralbcreat", label = "Urine albumin/creatinine ratio (mg/g)", value = 10),
-                                    numericInput("sysbp", label = "Systolic blood pressure (mm Hg)", value = 140),
-                                    radioButtons("bprx", label = "On blood pressure treatment?", choices = list(No=0, Yes=1), inline = TRUE)
-                             ),
-                             column(3,
-                                    radioButtons("cvdhist", label = "Prior myocardial infaction or stroke?", choices = list(No=0, Yes=1), inline = TRUE),
-                                    radioButtons("anticoag", label = "On anticoagulant (other than aspirin)?", choices = list(No=0, Yes=1), inline = TRUE),
+                                    radioButtons("dm", label = "Diabetes mellitus?", choices = list(No=0, Yes=1), inline = TRUE),
                                     radioButtons("cursmoke", label = "Currently smoking tobacco?", choices = list(No=0, Yes=1), inline = TRUE)
+                             ),
+                             column(width=6,
+                                    numericInput("totchol", label = "Total cholesterol (mg/dL)", value = 190),
+                                    numericInput("hdlc", label = "HDL cholesterol (mg/dL)", value = 50),
+                                    numericInput("sysbp", label = "Systolic blood pressure (mm Hg)", value = 140),
+                                    radioButtons("rxbp", label = "On blood pressure treatment?", choices = list(No=0, Yes=1), inline = TRUE)
                              )
                            ),
                            
                            hr(),
                            
                            fluidRow(
-                             column(3,
-                                    h4("Estimated 10-yr risk of:", align = "center")
+                             column(width=6,
+                                    h4("Estimated 10-yr risk of ASCVD:", align = "center")
+                             ),
+                             column(width=6,
+                                    h4(textOutput("ascvd_risk"), align = "center")
                              )
                            ),
                            
-                           hr(),
-                           
-                           fluidRow(
-                             column(3,
-                                    h4("Nephropathy (%):", align = "center")
-                             ),
-                             column(3,
-                                    h4(textOutput("neph"), align = "center")
-                             ),
-                             column(6,
-                                    "Renal failure/end-stage renal disease."
-                             )
-                           ),
-                           
-                           hr(),
-                           
-                           fluidRow(
-                             column(3,
-                                    h4("Retinopathy (%):", align = "center")
-                             ),
-                             column(3,
-                                    h4(textOutput("retin"), align = "center")
-                             ),
-                             column(6,
-                                    "Severe vision loss (<20/200)."
-                             )
-                           ),
-                           
-                           hr(),
-                           
-                           fluidRow(
-                             column(3,
-                                    h4("Neuropathy (%):", align = "center")
-                             ),
-                             column(3,
-                                    h4(textOutput("neuro"), align = "center")
-                             ),
-                             column(6,
-                                    "Pressure sensation loss."
-                             )
-                           ),
-                           
-                           hr(),
-                           
-                           fluidRow(
-                             column(3,
-                                    h4("Myocardial infarction or stroke (%):", align = "center")
-                             ),
-                             column(3,
-                                    h4(textOutput("mi"), align = "center")
-                             ),
-                             column(6,
-                                    "Fatal or nonfatal."
-                             )
-                           ),
-                           
-                           
-                           hr(),
-                           
-                           fluidRow(
-                             column(3,
-                                    h4("Congestive heart failure (%):", align = "center")
-                             ),
-                             column(3,
-                                    h4(textOutput("chf"), align = "center")
-                             ),
-                             column(6,
-                                    "Symptomatic heart failure, NYHA Class III or IV CHF, or ejection fraction (by any method) < 25%."
-                             )
-                           ),
-                           
-                           hr(),
-                           
-                           fluidRow(
-                             column(3,
-                                    h4("Mortality (%):", align = "center")
-                             ),
-                             column(3,
-                                    h4(textOutput("death"), align = "center")
-                             ),
-                             column(6,
-                                    "From any cause."
-                             )
-                           ),
+
                            hr(),
                            "Note: This calculator is intended for informational purposes only, and has not been prospectively 
                            evaluated for impact on clinical practice or patient outcomes. Calculations must be re-checked and 
@@ -144,13 +62,14 @@ ui = navbarPage("RECODe",
                 
                 tabPanel("Summary Statistics",
                          
-                         h4("Risk model was derived from ACCORD and validated against both DPPOS (for microvascular outcomes) and Look AHEAD (for macrovascular outcomes). Summary statistics for all three trials are presented below:"),
+                         h4("Risk model was derived from ARIC, JHS, MESA, CHS, CARDIA, and the Framingham Offspring Study. Summary statistics for the pooled development and validation cohorts are presented here:"),
                          
                          br(),
                          
                          fluidRow(
-                           column(12,
-                                  dataTableOutput('summary')
+                           column(width=12,
+                                  align="center",
+                                  tableOutput('summary')
                            )
                          )
                          
@@ -198,176 +117,88 @@ server = function(input, output) {
   # Access input values with input$*
   # Save output objects to output$*
   # Build objects with render*({ code })
-  neph_beta = reactive({round(100*(1-.973^exp(0 + 
-                                                -0.0193838993 * as.numeric(input$age) + 
-                                                -0.0112943865 * as.numeric(input$sex) + 
-                                                -0.0881241594 * as.numeric(input$black) + 
-                                                0.2337712368 * as.numeric(input$hisp) + 
-                                                0.0030271330 * as.numeric(input$sysbp) + 
-                                                -0.0795168593 * as.numeric(input$bprx) + 
-                                                0.1483078052 * as.numeric(input$cursmoke) +
-                                                -0.0216363649 * as.numeric(input$cvdhist) + 
-                                                -0.1255530728 * as.numeric(input$oralrx) + 
-                                                0.8608801402 * as.numeric(input$sercreat) + 
-                                                -0.0011121510 * as.numeric(input$totchol) + 
-                                                0.0062888253 * as.numeric(input$hdlchol) +
-                                                0.0319895697 * as.numeric(input$anticoag) + 
-                                                0.1369126389 * as.numeric(input$hgba1c) +
-                                                0.0003615507*as.numeric(input$uralbcreat)
-                                              -0.2269629)))
+    ascvd_estimator = reactive({
+        female.risk <- 1.0 / (1.0 + exp( - (
+            -13.40436 +
+            0.1209233 * as.numeric(input$age) +
+            0.59126 * as.numeric(input$black) +
+            7.215301E-05 * (as.numeric(input$sysbp) ^ 2) +
+            0.02002917 * as.numeric(input$sysbp) +
+            0.8105812 * as.numeric(input$rxbp) +
+            0.9452969 * as.numeric(input$dm) +
+            1.017919 * as.numeric(input$cursmoke) +
+            0.1485375 * (as.numeric(input$totchol) / as.numeric(input$hdlc)) +
+            -0.007943772 * as.numeric(input$age) * as.numeric(input$black) +
+            -0.004264248 * as.numeric(input$sysbp) * as.numeric(input$rxbp) +
+            0.005912054 * as.numeric(input$sysbp) * as.numeric(input$black) +
+            0.09430543 * as.numeric(input$black) * as.numeric(input$rxbp) +
+            -0.0002607624 * as.numeric(input$age) * as.numeric(input$sysbp) +
+            0.1040258 * as.numeric(input$black) * as.numeric(input$dm) +
+            -0.08093072 * as.numeric(input$black) * as.numeric(input$cursmoke) +
+            0.07144001 * as.numeric(input$black) * (as.numeric(input$totchol) / as.numeric(input$hdlc)) +
+            -6.913603E-05 * as.numeric(input$age) * as.numeric(input$sysbp) * as.numeric(input$black)
+            )))
+        male.risk <- 1.0 / (1.0 + exp( - (
+            -11.33614 +
+            0.0666618 * as.numeric(input$age) +
+            0.43525 * as.numeric(input$black) +
+            -4.012011E-05 * (as.numeric(input$sysbp) ^ 2) +
+            0.03420654 * as.numeric(input$sysbp) +
+            1.957798 * as.numeric(input$rxbp) +
+            0.831096 * as.numeric(input$dm) +
+            0.8976064 * as.numeric(input$cursmoke) +
+            0.1894506 * (as.numeric(input$totchol) / as.numeric(input$hdlc)) +
+            -0.01347768 * as.numeric(input$sysbp) * as.numeric(input$rxbp) +
+            0.007847015 * as.numeric(input$sysbp) * as.numeric(input$black) +
+            -0.05135988 * as.numeric(input$rxbp) * as.numeric(input$black) +
+            3.059223E-07 * as.numeric(input$age) * as.numeric(input$sysbp) +
+            -0.09236525 * as.numeric(input$black) * as.numeric(input$dm) +
+            -0.1982048 * as.numeric(input$black) * as.numeric(input$cursmoke) +
+            -0.1115326 * (as.numeric(input$totchol) / as.numeric(input$hdlc)) * as.numeric(input$black) +
+            0.003682936 * as.numeric(input$black) * as.numeric(input$rxbp) * as.numeric(input$sysbp) +
+            -0.0001280129 * as.numeric(input$black) * as.numeric(input$age) * as.numeric(input$sysbp)
+            )))
+        paste(
+            specify.decimal(100*(ifelse(as.numeric(input$sex) == 1, female.risk, male.risk)), nsmall=1, zero=F),
+            "%", sep="")
   })
   
+  output$ascvd_risk = renderText({ ascvd_estimator() })
   
-  
-  
-  
-  output$neph = renderText({ neph_beta() })
-  
-  
-  retin_beta = reactive({round(100*(1-.921^exp(0 + 
-                                                 0.0228504061 * as.numeric(input$age) + 
-                                                 0.2264337097 * as.numeric(input$sex) + 
-                                                 -0.1676573729 * as.numeric(input$black) + 
-                                                 0.0082431088 * as.numeric(input$sysbp) + 
-                                                 0.0639339678 * as.numeric(input$bprx) + 
-                                                 0.1127372373 * as.numeric(input$cvdhist) + 
-                                                 -0.2348989478 * as.numeric(input$oralrx) + 
-                                                 0.6946500975 * as.numeric(input$sercreat) + 
-                                                 -0.0001676169 * as.numeric(input$totchol) + 
-                                                 0.0054470159 * as.numeric(input$hdlchol) +
-                                                 0.1449446673 * as.numeric(input$hgba1c) +
-                                                 0.0001991881*as.numeric(input$uralbcreat)
-                                               -4.563441)))
-  })
-  
-  
-  output$retin = renderText({ retin_beta() })
-  
-  
-  neuro_beta = reactive({round(100*(1-0.87^exp(0 + 
-                                                3.022e-02 * as.numeric(input$age) + 
-                                                -1.868e-01 * as.numeric(input$sex) + 
-                                                -9.448e-02 * as.numeric(input$black) + 
-                                                4.561e-03 * as.numeric(input$sysbp) + 
-                                                1.819e-01 * as.numeric(input$bprx) + 
-                                                2.667e-01 * as.numeric(input$cvdhist) + 
-                                                -2.575e-01 * as.numeric(input$oralrx) + 
-                                                6.044e-01 * as.numeric(input$sercreat) + 
-                                                2.185e-03 * as.numeric(input$totchol) + 
-                                                -5.389e-03 * as.numeric(input$hdlchol) +
-                                                1.887e-01 * as.numeric(input$hgba1c) +
-                                                -4.746261)))
-  })
-  
-  
-  output$neuro = renderText({ neuro_beta() })
-  
-  
-  
-  
-  mi_beta = reactive({round(100*(1-0.85^exp(0 + 
-                                              0.034210 * as.numeric(input$age) + 
-                                              -0.167200* as.numeric(input$sex) + 
-                                              -0.118700 * as.numeric(input$black) + 
-                                              0.151000*as.numeric(input$cursmoke)+
-                                              0.000074 * as.numeric(input$sysbp) + 
-                                              0.055790 * as.numeric(input$bprx) + 
-                                              0.778400 * as.numeric(input$cvdhist) + 
-                                              -0.033610 * as.numeric(input$statin) + 
-                                              0.252400*as.numeric(input$anticoag)+
-                                              0.435500 * as.numeric(input$sercreat) + 
-                                              0.001929 * as.numeric(input$totchol) + 
-                                              -0.008370 * as.numeric(input$hdlchol) +
-                                              0.171600 * as.numeric(input$hgba1c) +
-                                              0.000333 *as.numeric(input$uralbcreat)+
-                                              -3.65)))
-  })
-  
-  
-  output$mi = renderText({ mi_beta() })
-  
-  
-  
-  
-  
-  
-  
-  chf_beta = reactive({round(100*(1-0.96^exp(0 + 
-                                               5.268e-02 * as.numeric(input$age) + 
-                                               2.529e-01 * as.numeric(input$sex) + 
-                                               -4.969e-02 * as.numeric(input$black) + 
-                                               2.905e-01*as.numeric(input$cursmoke)+
-                                               1.217e-03 * as.numeric(input$sysbp) + 
-                                               6.389e-01 * as.numeric(input$bprx) + 
-                                               1.007e00 * as.numeric(input$cvdhist) +
-                                               -1.175e-01*as.numeric(input$statin)+
-                                               7.365e-01*as.numeric(input$anticoag)+
-                                               4.142e-04 * as.numeric(input$uralbcreat) + 
-                                               8.214e-01 * as.numeric(input$sercreat) + 
-                                               -1.358e-03 * as.numeric(input$totchol) + 
-                                               -1.758e-02 * as.numeric(input$hdlchol) +
-                                               2.092e-01 * as.numeric(input$hgba1c) +
-                                               -5.15)))
-  })
-  
-  
-  output$chf = renderText({ chf_beta() })
-  
-  
-  
-  
-  death_beta = reactive({round(100*(1-0.93^exp(0 + 
-                                                 6.703e-02 * as.numeric(input$age) + 
-                                                 -1.529e-01 * as.numeric(input$sex) + 
-                                                 -2.393e-02 * as.numeric(input$black) + 
-                                                 5.399e-01*as.numeric(input$cursmoke)+
-                                                 -2.988e-03 * as.numeric(input$sysbp) + 
-                                                 8.766e-02* as.numeric(input$bprx) + 
-                                                 5.888e-01 * as.numeric(input$cvdhist) +
-                                                 -2.681e-01*as.numeric(input$statin)+
-                                                 4.036e-01*as.numeric(input$anticoag)+
-                                                 3.889e-04 * as.numeric(input$uralbcreat) + 
-                                                 3.597e-01 * as.numeric(input$sercreat) + 
-                                                 -9.478e-04 * as.numeric(input$totchol) + 
-                                                 -4.378e-03 * as.numeric(input$hdlchol) +
-                                                 1.659e-01 * as.numeric(input$hgba1c) +
-                                                 -4.66)))
-  })
-  
-  
-  output$death = renderText({ death_beta() })
-  
-  
-  
-  
-  output$summary = renderDataTable({
-    rows = c("Age, mean (SD), y", "Senior in age, >75 y (%)", "Women", "Black race", "Hispanic or Latino ethnic group", "Tobacco smoking, current", "Body mass index, mean (SD), kg/m2",
-             "Systolic, mean (SD), mmHg", "Diastolic, mean (SD), mmHg", "Heart rate, beats/min", "Cardiovascular disease history", "Blood pressure treatment",
-             "Oral diabetes medication (including metformin)", "Insulin treatment", "Statin use", "Fibrate use", "Anticoagulant use", "Non-steroidal anti-inflammatory use",
-             "Platelet aggregate inhibitor use", "Daily aspirin use", "Hemoglobin A1c, mean (SD), %", "Total cholesterol, mean (SD), mg/dL", "Direct high-density lipoprotein cholesterol, mean (SD), mg/dL",
-             "Low-density lipoprotein cholesterol, mean (SD), mg/dL", "Triglycerides, mean (SD), mg/dL", "Fasting plasma glucose, mean (SD), mg/dL", "Alanine aminotransferase, mean (SD), IU/dL",
-             "Creatine phosphokinase, mean (SD), U/L", "Serum potassium, mean (SD), mmol/L", "Serum creatinine, mean (SD), mg/dL", "Estimated glomerular filtration rate, mean (SD), mL/min/1.73m2",
-             "Urine albumin, mean (SD), mg/L", "Urine creatinine, mean (SD), mg/L", "Urine albumin/creatinine ratio, mean (SD), mg/g")
-    accord = c("62.8 (6.7)", "521 (5.4)", "3,662 (38.0)", "1,834 (19.0)", "678 (7.0)", "1,179 (12.2)", "32.2 (5.4)", "136.5 (17.1)",
-               "74.9 (10.7)", "72.7 (11.8)", "3,437 (35.7)", "8,109 (84.2)", "8,024 (83.3)", "3,403 (35.3)", "6,148 (63.8)", "601 (6.2)", 
-               "303 (3.1)", "851 (8.8)", "466 (4.8)", "5,274 (54.7)", "8.3 (1.1)", "183.2 (41.7)", "41.8 (11.6)", "104.7 (33.8)", "190.7 (145.8)",
-               "175.3 (55.8)", "27.5 (16.0)", "140.3 (130.2)", "4.5 (0.5)", "0.9 (0.2)", "90.9 (27.3)", "10.7 (37.3)", "127.3 (65.4)", "99.2 (359.4)")
-    dppos = c("50.9 (8.0)", "0 (0)", "680 (66.8)", "244 (24.0)", "175 (17.2)", "52 (5.1)", "33.9 (5.9)", "123.7 (14.0)",
-              "76.4 (8.8)", "N/A", "12 (1.2)", "770 (75.6)", "336 (33.0)", "N/A", "721 (70.8)", "N/A", "N/A", "N/A", "N/A", "N/A", 
-              "6.1 (0.7)", "196.0 (43.7)", "46.0 (12.3)", "99.5 (27.3)", "162.7 (256.8)", "115.8 (22.7)", "N/A", "N/A", "N/A", "0.8 (0.2)",
-              "98.8 (15.7)", "10.8 (6.4)", "123.3 (73.6)", "N/A")
-    lookahead = c("58.9 (6.7)", "31 (0.7)", "2,784 (58.5)", "776 (16.3)", "670 (14.1)", "202 (4.2)", "36.0 (5.9)", "129.0 (17.1)", "70.2 (9.5)",
-                  "71.4 (11.4)", "665 (14.0)", "3,410 (71.6)", "3,246 (68.2)", "724 (15.2)", "2,142 (45.0)", "324 (6.8)", "N/A", "N/A", "N/A", "2,140 (45.0)",
-                  "7.3 (1.2)", "191.4 (37.3)", "43.5 (11.9)", "112.7 (32.1)", "N/A", "153.2 (45.6)", "N/A", "N/A", "N/A",
-                  "0.8 (0.2)", "89.9 (16.1)", "4.8 (23.0)", "121.0 (67.0)", "43.1 (201.5)")
-    table = data.frame(rows, accord, dppos, lookahead)
-    colnames(table) = c("", "No. (%) in ACCORD (N = 9,635 used for equation derivation)", 
-                        "No. (%) in DPPOS (N = 1,018 used for equation validation)",
-                        "No. (%) in Look AHEAD (N = 4,760 used for equation validation)")
-    table
-  }, options = list(searching = FALSE, paging = FALSE))
+  output$summary = renderTable({
+df <- as.data.frame(rbind(
+c("", "Black", "", "", "", "White", "", "", ""),
+c("", "Development", "", "Validation", "", "Development", "", "Validation", ""),
+c("", "Mean", "Std. dev.", "Mean", "Std. dev.", "Mean", "Std. dev.", "Mean", "Std. dev."),
+c("Women", "n = 3765", "", "n = 944", "", "n = 7354", "", "n = 1816", ""),
+c("Age Range", "(40, 79)", "", "(40, 79)", "", "(40, 79)", "", "(40, 79)", ""),
+c("Age (yrs)", "55.5", "9.4", "55.7", "9.4", "57.6", "9.8", "57.3", "9.7"),
+c("Total Cholesterol (mg/dl)", "206.1", "42.2", "206.4", "41.1", "216.0", "40.6", "213.9", "39.5"),
+c("HDL Cholesterol (mg/dL)", "56.9", "16.1", "57.1", "15.5", "58.5", "16.6", "58.5", "16.4"),
+c("Untreated SBP (mmHg)", "124.1", "19.0", "122.6", "18.1", "118.3", "18.6", "118.2", "18.1"),
+c("Treated SBP (mmHg)", "134.6", "21.5", "134.4", "21.3", "133.9", "19.9", "133.5", "19.7"),
+c("BP Meds (%)", "45.26", "", "47.03", "", "20.44", "", "20.81", ""),
+c("Current Smoker (%)", "18.22", "", "16.10", "", "22.57", "", "21.81", ""),
+c("Diabetes (%)", "16.89", "", "19.28", "", "6.23", "", "6.11", ""),
+c("10yr ASCVD incidence per 1,000 person-yrs", "6.59", "", "6.78", "", "6.51", "", "6.44", ""),
+c("", "Development", "", "Validation", "", "Development", "", "Validation", ""),
+c("", "Mean", "Std. dev.", "Mean", "Std. dev.", "Mean", "Std. dev.", "Mean", "Std. dev."),
+c("Men", "n = 2503", "", "n = 623", "", "n = 6261", "", "n = 1582", ""),
+c("Age Range", "(40, 79)", "", "(40, 79)", "", "(40, 79)", "", "(40, 79)", ""),
+c("Age (yrs)", "56.1", "9.4", "55.9", "9.9", "57.0", "9.4", "57.2", "9.5"),
+c("Total Cholesterol (mg/dl)", "199.3", "41.8", "198.8", "42.4", "205.5", "37.9", "207.6", "38.7"),
+c("HDL Cholesterol (mg/dL)", "48.4", "14.9", "48.0", "14.4", "44.3", "12.6", "44.2", "12.2"),
+c("Untreated SBP (mmHg)", "127.1", "19.2", "127.2", "18.8", "121.7", "17.0", "121.9", "16.8"),
+c("Treated SBP (mmHg)", "134.1", "19.0", "134.8", "18.9", "132.4", "19.9", "133.3", "21.2"),
+c("BP Meds (%)", "36.56", "", "33.87", "", "19.20", "", "19.41", ""),
+c("Current Smoker (%)", "27.53", "", "27.45", "", "22.89", "", "21.37", ""),
+c("Diabetes (%)", "16.30", "", "16.21", "", "8.48", "", "8.85", ""),
+c("10yr ASCVD incidence per 1,000 person-yrs", "9.64", "", "9.33", "", "11.31", "", "11.85", "")
+))
+  }, colnames=F, rownames=F)
   
   
 }
 
-shinyApp(ui = ui, server = server)
+
+runApp(shinyApp(ui = ui, server = server), port=3000)

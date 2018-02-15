@@ -1,4 +1,4 @@
-# Revised equations for estimating atherosclerotic cardiovascular disease risk: code for replication
+# Clinical implications of revised pooled cohort equations for estimating atherosclerotic cardiovascular disease risk: code for replication
 
 ## To run
 Use the Stata files to create the cohorts. These should be added to a folder called pooled_data/ in the root directory. From here, use `split_data.R` to create data splits and choose folds for cross validation.

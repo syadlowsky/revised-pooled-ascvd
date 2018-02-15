@@ -20,7 +20,7 @@ default:
   load_cv_results: false
   elastic_net:
     logistic:
-      censorship_per_study: true
+      censorship_per_study: false
       folds: 10
       s: "lambda.min"
 

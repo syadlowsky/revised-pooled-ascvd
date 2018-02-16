@@ -1,14 +1,14 @@
-# This code implements an automated GUI risk score calculator for patients with type 2 diabetes, using the Shiny package in R.
+# This code implements an automated GUI risk score calculator , using the Shiny package in R.
 # install the shiny app before using
 
 library(DT)
 library(shiny)
 
 specify.decimal <- function(t, nsmall=3, zero=T) {
-    if (round(t, nsmall) == 0 & !zero) {
-        return(signif(t, 1))
-    }
-    return(format(round(t, nsmall), nsmall=nsmall))
+  if (round(t, nsmall) == 0 & !zero) {
+    return(signif(t, 1))
+  }
+  return(format(round(t, nsmall), nsmall=nsmall))
 }
 
 
@@ -47,7 +47,7 @@ ui = navbarPage("ASCVD",
                              )
                            ),
                            
-
+                           
                            hr(),
                            "Note: This calculator is intended for informational purposes only, and has not been prospectively 
                            evaluated for impact on clinical practice or patient outcomes. Calculations must be re-checked and 
@@ -94,16 +94,16 @@ ui = navbarPage("ASCVD",
                          
                          br(),
                          
-                         h5("The calculations and website shown here were prepared using ACCORD, DPPOS and Look AHEAD research materials obtained from the NHLBI Biologic Specimen and Data Repository Information Coordinating Center and the NIDDK Central Database Repository. The calculations and content on this Site do not necessary reflect the opinions or views of the ACCORD, DPPOS, Look AHEAD, NHLBI, or NIDDK."),
+                         h5("This calculator was prepared using ARIC, CHS, CARDIA, and Framingham Study research materials obtained from the NHLBI Biologic Specimen and Data Repository Information Coordinating Center and does not necessary reflect the opinions or views of the CHS, CARDIA, Framingham Study, or the NHLBI."),
                          
                          br(),
-                         h5("The Diabetes Prevention Program (DPP) and Diabetes Prevention Program Outcomes Study (DPPOS) were conducted by the DPP Research Group and supported by the National Institute of Diabetes and Digestive and Kidney Diseases (NIDDK), the General Clinical Research Center Program, the National Institute of Child Health and Human Development (NICHD), the National Institute on Aging (NIA), the Office of Research on Women's Health, the Office of Research on Minority Health, the Centers for Disease Control and Prevention (CDC), and the American Diabetes Association. The data from the DPP and DPPOS were supplied by the NIDDK Central Repositories. This calculator or website and its related materials were not prepared under the auspices of the DPP/DPPOS and does not represent analyses or conclusions of the DPP Research Group, the NIDDK Central Repositories, or the NIH."),
+                         h5("Calculations reported here were supported by the National Institute On Minority Health And Health Disparities of the National Institutes of Health under Award Numbers DP2MD010478 and U54MD010724, and by the National Heart, Lung and Blood Institute of the National Institutes of Health under Award Number K08HL121056. The content is solely the responsibility of the authors and does not necessarily represent the official views of the National Institutes of Health. Steve Yadlowsky is supported by the Stanford University Graduate Fellowship."),
                          
                          br(),
-                         h5("Look AHEAD was conducted by the Look AHEAD Research Group and supported by the National Institute of Diabetes and Digestive and Kidney Diseases (NIDDK); the National Heart, Lung, and Blood Institute (NHLBI); the National Institute of Nursing Research (NINR); the National Institute of Minority Health and Health Disparities (NIMHD); the Office of Research on Women's Health (ORWH); and the Centers for Disease Control and Prevention (CDC). The data from Look AHEAD were supplied by the NIDDK Central Repositories. This calculator or website and its related materials was not prepared under the auspices of the Look AHEAD and does not represent analyses or conclusions of the Look AHEAD Research Group, the NIDDK Central Repositories, or the NIH."),
+                         h5("The Jackson Heart Study is supported by contracts HHSN268201300046C, HHSN268201300047C, HHSN268201300048C, HHSN268201300049C, HHSN268201300050C from the National Heart, Lung, and Blood Institute and the National Institute on Minority Health and Health Disparities, with additional support from the National Institute on Biomedical Imaging and Bioengineering. "),
                          
                          br(),
-                         h5("Financial support for this calculator and website and its related materials was provided in part by grants from the National Institute On Minority Health And Health Disparities of the National Institutes of Health under Award Numbers DP2MD010478 and U54MD010724; the National Heart, Lung, And Blood Institute of the National Institutes of Health under Award Number K08HL121056; the National Institute of Diabetes, Digestive and Kidney Diseases of The National Institutes of Health under Award Numbers P60DK20572 and K23DK109200; and the Department of Veterans Affairs HSR&D Service under Award Numbers IIR11-088 and CDA13-021. The funding agreement ensured the authors’ independence in designing the calculations, interpreting the data, writing, and publishing the results. The content is solely the responsibility of the authors and does not necessarily represent the official views of the National Institutes of Health or the Department of Veterans Affairs, or of any of the authors' affiliated institutions.")
+                         h5("The MESA Study is supported by contracts HHSN268201500003I, N01-HC-95159, N01-HC-95160, N01-HC-95161, N01-HC-95162, N01-HC-95163, N01-HC-95164, N01-HC-95165, N01-HC-95166, N01-HC-95167, N01-HC-95168 and N01-HC-95169 from the National Heart, Lung, and Blood Institute, and by grants UL1-TR-000040, UL1-TR-001079, and UL1-TR-001420 from NCATS.  The authors thank the other investigators, the staff, and the participants of the MESA study for their valuable contributions.  A full list of participating MESA investigators and institutions can be found at http://www.mesa-nhlbi.org.")
                          
                          
                          
@@ -117,88 +117,91 @@ server = function(input, output) {
   # Access input values with input$*
   # Save output objects to output$*
   # Build objects with render*({ code })
-    ascvd_estimator = reactive({
-        female.risk <- 1.0 / (1.0 + exp( - (
-            -13.40436 +
-            0.1209233 * as.numeric(input$age) +
-            0.59126 * as.numeric(input$black) +
-            7.215301E-05 * (as.numeric(input$sysbp) ^ 2) +
-            0.02002917 * as.numeric(input$sysbp) +
-            0.8105812 * as.numeric(input$rxbp) +
-            0.9452969 * as.numeric(input$dm) +
-            1.017919 * as.numeric(input$cursmoke) +
-            0.1485375 * (as.numeric(input$totchol) / as.numeric(input$hdlc)) +
-            -0.007943772 * as.numeric(input$age) * as.numeric(input$black) +
-            -0.004264248 * as.numeric(input$sysbp) * as.numeric(input$rxbp) +
-            0.005912054 * as.numeric(input$sysbp) * as.numeric(input$black) +
-            0.09430543 * as.numeric(input$black) * as.numeric(input$rxbp) +
-            -0.0002607624 * as.numeric(input$age) * as.numeric(input$sysbp) +
-            0.1040258 * as.numeric(input$black) * as.numeric(input$dm) +
-            -0.08093072 * as.numeric(input$black) * as.numeric(input$cursmoke) +
-            0.07144001 * as.numeric(input$black) * (as.numeric(input$totchol) / as.numeric(input$hdlc)) +
-            -6.913603E-05 * as.numeric(input$age) * as.numeric(input$sysbp) * as.numeric(input$black)
-            )))
-        male.risk <- 1.0 / (1.0 + exp( - (
-            -11.33614 +
-            0.0666618 * as.numeric(input$age) +
-            0.43525 * as.numeric(input$black) +
-            -4.012011E-05 * (as.numeric(input$sysbp) ^ 2) +
-            0.03420654 * as.numeric(input$sysbp) +
-            1.957798 * as.numeric(input$rxbp) +
-            0.831096 * as.numeric(input$dm) +
-            0.8976064 * as.numeric(input$cursmoke) +
-            0.1894506 * (as.numeric(input$totchol) / as.numeric(input$hdlc)) +
-            -0.01347768 * as.numeric(input$sysbp) * as.numeric(input$rxbp) +
-            0.007847015 * as.numeric(input$sysbp) * as.numeric(input$black) +
-            -0.05135988 * as.numeric(input$rxbp) * as.numeric(input$black) +
-            3.059223E-07 * as.numeric(input$age) * as.numeric(input$sysbp) +
-            -0.09236525 * as.numeric(input$black) * as.numeric(input$dm) +
-            -0.1982048 * as.numeric(input$black) * as.numeric(input$cursmoke) +
-            -0.1115326 * (as.numeric(input$totchol) / as.numeric(input$hdlc)) * as.numeric(input$black) +
-            0.003682936 * as.numeric(input$black) * as.numeric(input$rxbp) * as.numeric(input$sysbp) +
-            -0.0001280129 * as.numeric(input$black) * as.numeric(input$age) * as.numeric(input$sysbp)
-            )))
-        paste(
-            specify.decimal(100*(ifelse(as.numeric(input$sex) == 1, female.risk, male.risk)), nsmall=1, zero=F),
-            "%", sep="")
+  ascvd_estimator = reactive({
+    female.risk <- 1.0 / (1.0 + exp( - (
+      -12.823110 +
+        0.106501 * as.numeric(input$age) +
+        0.432440 * as.numeric(input$black) +
+        0.000056 * (as.numeric(input$sysbp) ^ 2) +
+        0.017666 * as.numeric(input$sysbp) +
+        0.731678 * as.numeric(input$rxbp) +
+        0.943970 * as.numeric(input$dm) +
+        1.009790 * as.numeric(input$cursmoke) +
+        0.151318 * (as.numeric(input$totchol) / as.numeric(input$hdlc)) +
+        -0.008580 * as.numeric(input$age) * as.numeric(input$black) +
+        -0.003647 * as.numeric(input$sysbp) * as.numeric(input$rxbp) +
+        0.006208 * as.numeric(input$sysbp) * as.numeric(input$black) +
+        0.152968 * as.numeric(input$black) * as.numeric(input$rxbp) +
+        -0.000153 * as.numeric(input$age) * as.numeric(input$sysbp) +
+        0.115232 * as.numeric(input$black) * as.numeric(input$dm) +
+        -0.092231 * as.numeric(input$black) * as.numeric(input$cursmoke) +
+        0.070498 * as.numeric(input$black) * (as.numeric(input$totchol) / as.numeric(input$hdlc)) +
+        -0.000173 * as.numeric(input$black)  * as.numeric(input$sysbp) * as.numeric(input$rxbp) +
+        -0.000094 * as.numeric(input$age) * as.numeric(input$sysbp) * as.numeric(input$black)
+    )))
+    male.risk <- 1.0 / (1.0 + exp( - (
+      -11.679980 +
+        0.064200 * as.numeric(input$age) +
+        0.482835 * as.numeric(input$black) +
+        -0.000061 * (as.numeric(input$sysbp) ^ 2) +
+        0.038950 * as.numeric(input$sysbp) +
+        2.055533 * as.numeric(input$rxbp) +
+        0.842209 * as.numeric(input$dm) +
+        0.895589 * as.numeric(input$cursmoke) +
+        0.193307 * (as.numeric(input$totchol) / as.numeric(input$hdlc)) +
+        -0.014207 * as.numeric(input$sysbp) * as.numeric(input$rxbp) +
+        0.011609 * as.numeric(input$sysbp) * as.numeric(input$black) +
+        -0.119460 * as.numeric(input$rxbp) * as.numeric(input$black) +
+        0.000025 * as.numeric(input$age) * as.numeric(input$sysbp) +
+        -0.077214 * as.numeric(input$black) * as.numeric(input$dm) +
+        -0.226771 * as.numeric(input$black) * as.numeric(input$cursmoke) +
+        -0.117749 * (as.numeric(input$totchol) / as.numeric(input$hdlc)) * as.numeric(input$black) +
+        0.004190 * as.numeric(input$black) * as.numeric(input$rxbp) * as.numeric(input$sysbp) +
+        -0.000199 * as.numeric(input$black) * as.numeric(input$age) * as.numeric(input$sysbp)
+    )))
+    paste(
+      specify.decimal(100*(ifelse(as.numeric(input$sex) == 1, female.risk, male.risk)), nsmall=1, zero=F),
+      "%", sep="")
   })
   
   output$ascvd_risk = renderText({ ascvd_estimator() })
   
   output$summary = renderTable({
-df <- as.data.frame(rbind(
-c("", "Black", "", "", "", "White", "", "", ""),
-c("", "Development", "", "Validation", "", "Development", "", "Validation", ""),
-c("", "Mean", "Std. dev.", "Mean", "Std. dev.", "Mean", "Std. dev.", "Mean", "Std. dev."),
-c("Women", "n = 3765", "", "n = 944", "", "n = 7354", "", "n = 1816", ""),
-c("Age Range", "(40, 79)", "", "(40, 79)", "", "(40, 79)", "", "(40, 79)", ""),
-c("Age (yrs)", "55.5", "9.4", "55.7", "9.4", "57.6", "9.8", "57.3", "9.7"),
-c("Total Cholesterol (mg/dl)", "206.1", "42.2", "206.4", "41.1", "216.0", "40.6", "213.9", "39.5"),
-c("HDL Cholesterol (mg/dL)", "56.9", "16.1", "57.1", "15.5", "58.5", "16.6", "58.5", "16.4"),
-c("Untreated SBP (mmHg)", "124.1", "19.0", "122.6", "18.1", "118.3", "18.6", "118.2", "18.1"),
-c("Treated SBP (mmHg)", "134.6", "21.5", "134.4", "21.3", "133.9", "19.9", "133.5", "19.7"),
-c("BP Meds (%)", "45.26", "", "47.03", "", "20.44", "", "20.81", ""),
-c("Current Smoker (%)", "18.22", "", "16.10", "", "22.57", "", "21.81", ""),
-c("Diabetes (%)", "16.89", "", "19.28", "", "6.23", "", "6.11", ""),
-c("10yr ASCVD incidence per 1,000 person-yrs", "6.59", "", "6.78", "", "6.51", "", "6.44", ""),
-c("", "Development", "", "Validation", "", "Development", "", "Validation", ""),
-c("", "Mean", "Std. dev.", "Mean", "Std. dev.", "Mean", "Std. dev.", "Mean", "Std. dev."),
-c("Men", "n = 2503", "", "n = 623", "", "n = 6261", "", "n = 1582", ""),
-c("Age Range", "(40, 79)", "", "(40, 79)", "", "(40, 79)", "", "(40, 79)", ""),
-c("Age (yrs)", "56.1", "9.4", "55.9", "9.9", "57.0", "9.4", "57.2", "9.5"),
-c("Total Cholesterol (mg/dl)", "199.3", "41.8", "198.8", "42.4", "205.5", "37.9", "207.6", "38.7"),
-c("HDL Cholesterol (mg/dL)", "48.4", "14.9", "48.0", "14.4", "44.3", "12.6", "44.2", "12.2"),
-c("Untreated SBP (mmHg)", "127.1", "19.2", "127.2", "18.8", "121.7", "17.0", "121.9", "16.8"),
-c("Treated SBP (mmHg)", "134.1", "19.0", "134.8", "18.9", "132.4", "19.9", "133.3", "21.2"),
-c("BP Meds (%)", "36.56", "", "33.87", "", "19.20", "", "19.41", ""),
-c("Current Smoker (%)", "27.53", "", "27.45", "", "22.89", "", "21.37", ""),
-c("Diabetes (%)", "16.30", "", "16.21", "", "8.48", "", "8.85", ""),
-c("10yr ASCVD incidence per 1,000 person-yrs", "9.64", "", "9.33", "", "11.31", "", "11.85", "")
-))
+    df <- as.data.frame(rbind(
+      c("", "Black", "", "", "", "White", "", "", ""),
+      c("", "Development", "", "Validation", "", "Development", "", "Validation", ""),
+      c("", "Mean", "Std. dev.", "Mean", "Std. dev.", "Mean", "Std. dev.", "Mean", "Std. dev."),
+      c("Women", "n = 3765", "", "n = 944", "", "n = 7354", "", "n = 1816", ""),
+      c("Age Range", "(40, 79)", "", "(40, 79)", "", "(40, 79)", "", "(40, 79)", ""),
+      c("Age (yrs)", "55.5", "9.4", "55.7", "9.4", "57.6", "9.8", "57.3", "9.7"),
+      c("Total Cholesterol (mg/dl)", "206.1", "42.2", "206.4", "41.1", "216.0", "40.6", "213.9", "39.5"),
+      c("HDL Cholesterol (mg/dL)", "56.9", "16.1", "57.1", "15.5", "58.5", "16.6", "58.5", "16.4"),
+      c("Untreated SBP (mmHg)", "124.1", "19.0", "122.6", "18.1", "118.3", "18.6", "118.2", "18.1"),
+      c("Treated SBP (mmHg)", "134.6", "21.5", "134.4", "21.3", "133.9", "19.9", "133.5", "19.7"),
+      c("BP Meds (%)", "45.26", "", "47.03", "", "20.44", "", "20.81", ""),
+      c("Current Smoker (%)", "18.22", "", "16.10", "", "22.57", "", "21.81", ""),
+      c("Diabetes (%)", "16.89", "", "19.28", "", "6.23", "", "6.11", ""),
+      c("10yr ASCVD incidence per 1,000 person-yrs", "6.59", "", "6.78", "", "6.51", "", "6.44", ""),
+      c("", "Development", "", "Validation", "", "Development", "", "Validation", ""),
+      c("", "Mean", "Std. dev.", "Mean", "Std. dev.", "Mean", "Std. dev.", "Mean", "Std. dev."),
+      c("Men", "n = 2503", "", "n = 623", "", "n = 6261", "", "n = 1582", ""),
+      c("Age Range", "(40, 79)", "", "(40, 79)", "", "(40, 79)", "", "(40, 79)", ""),
+      c("Age (yrs)", "56.1", "9.4", "55.9", "9.9", "57.0", "9.4", "57.2", "9.5"),
+      c("Total Cholesterol (mg/dl)", "199.3", "41.8", "198.8", "42.4", "205.5", "37.9", "207.6", "38.7"),
+      c("HDL Cholesterol (mg/dL)", "48.4", "14.9", "48.0", "14.4", "44.3", "12.6", "44.2", "12.2"),
+      c("Untreated SBP (mmHg)", "127.1", "19.2", "127.2", "18.8", "121.7", "17.0", "121.9", "16.8"),
+      c("Treated SBP (mmHg)", "134.1", "19.0", "134.8", "18.9", "132.4", "19.9", "133.3", "21.2"),
+      c("BP Meds (%)", "36.56", "", "33.87", "", "19.20", "", "19.41", ""),
+      c("Current Smoker (%)", "27.53", "", "27.45", "", "22.89", "", "21.37", ""),
+      c("Diabetes (%)", "16.30", "", "16.21", "", "8.48", "", "8.85", ""),
+      c("10yr ASCVD incidence per 1,000 person-yrs", "9.64", "", "9.33", "", "11.31", "", "11.85", "")
+    ))
   }, colnames=F, rownames=F)
   
   
 }
 
 
-runApp(shinyApp(ui = ui, server = server), port=3000)
+
+shinyApp(ui = ui, server = server)
+

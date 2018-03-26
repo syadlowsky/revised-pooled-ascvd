@@ -7,7 +7,7 @@ Once you have the data, `fit_model.R` does most of the heavy lifting, including 
 
 Most of the rest of the files provide routines for fitting different models or calculating statistics included in the paper.
 
-In moving this from the data center where the work was done, some issues with versions used may pop up. If you find any issues, please email us at basus at stanford dot edu
+In moving this from the data center where the work was done, some issues with versions used may pop up. If you find any issues, please email us at basus@stanford.edu
 
 
 <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.

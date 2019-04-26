@@ -119,9 +119,9 @@ server = function(input, output) {
   # Build objects with render*({ code })
   ascvd_estimator = reactive({
     female.risk <- 1.0 / (1.0 + exp( - (
-      -12.823110 +
+      -11.938468 +
         0.106501 * as.numeric(input$age) +
-        0.432440 * as.numeric(input$black) +
+        0.119399 * as.numeric(input$black) +
         0.000056 * (as.numeric(input$sysbp) ^ 2) +
         0.017666 * as.numeric(input$sysbp) +
         0.731678 * as.numeric(input$rxbp) +
@@ -140,9 +140,9 @@ server = function(input, output) {
         -0.000094 * as.numeric(input$age) * as.numeric(input$sysbp) * as.numeric(input$black)
     )))
     male.risk <- 1.0 / (1.0 + exp( - (
-      -11.679980 +
+      -11.219734 +
         0.064200 * as.numeric(input$age) +
-        0.482835 * as.numeric(input$black) +
+        0.315986 * as.numeric(input$black) +
         -0.000061 * (as.numeric(input$sysbp) ^ 2) +
         0.038950 * as.numeric(input$sysbp) +
         2.055533 * as.numeric(input$rxbp) +

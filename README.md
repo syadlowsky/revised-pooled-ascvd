@@ -1,5 +1,10 @@
 # Clinical implications of revised pooled cohort equations for estimating atherosclerotic cardiovascular disease risk: code for replication
 
+## Updates (5/26/19):
+Due to a coding bug extracting the recalibrated coefficients for the intercept and race from the model, Table 2, the Appendix Table, and Figure 4 are inaccurate in the original publication. Attached in `Updated Tables.docx` and `Updated Figure.png` are the updated versions correcting this issue. In addition, the online calculator app has been updated to reflect this change as well. To our best knowledge, all the other numbers reported in the publication are accurate.
+
+![Updated Figure 4](Updated%20Figure.png)
+
 ## To run
 Use the Stata files to create the cohorts. These should be added to a folder called pooled_data/ in the root directory. From here, use `split_data.R` to create data splits and choose folds for cross validation.
 
